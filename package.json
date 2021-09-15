@@ -1,0 +1,16 @@
+{
+  "name": "vue-inset-loader",
+  "version": "1.2.0",
+  "description": "在sfc模板指定位置插入自定义内容",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1977474741/vue-inset-loader.git"
+  },
+  "author": "鹅鹅鹅 <1977474741@qq.com>",
+  "license": "ISC",
+  "peerDependencies": {
+    "vue-template-compiler": "^2.6.10"
+  },
+  "devDependencies": {}
+}
