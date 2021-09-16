@@ -1,7 +1,15 @@
-// pages.json对象
-const pagesJson = process.VUE_COMPONENTS_LOADER
+const fs = require('fs')
+const path = require('path')
+const loaderUtils = require("loader-utils")
+
+// 反序列化后的pages.json对象
+let pagesJson = {}
 // 此loader配置对象
-const vueLabel = pagesJson.vueLabel
+let insetLoader = {}
+// pages.json文件所在目录
+let rootPath =  process.env.UNI_INPUT_DIR || (process.env.INIT_CWD + '\\src')
+
+
 // 在template中用正则匹配并替换一段代码
 const generateHtmlCode = (template,labelCode,regLabel)=>{
 	// 去除html所有注释和首尾空白
@@ -14,7 +22,7 @@ const generateHtmlCode = (template,labelCode,regLabel)=>{
 }
 
 // 获取到需要插入的所有label标签
-const generateLabelCode = (labelArr) => labelArr.map(e => vueLabel.config[e] || '').join('')
+const generateLabelCode = (labelArr) => labelArr.map(e => insetLoader.config[e] || '').join('')
 
 // 根据compiler组合成style标签字符串代码
 const generateStyleCode = (styles)=>styles.reduce((str,item,i)=>{
@@ -23,19 +31,19 @@ const generateStyleCode = (styles)=>styles.reduce((str,item,i)=>{
 	</style>`
 },'')
 
-// 分析pages.json，生成需要处理的页面配置
-const getConfig = ()=>{
+// 分析pages.json，生成路由和配置的映射对象
+const getPagesMap = ()=>{
 	// 获取主包路由配置
 	return pagesJson.pages.reduce((obj,item)=>{
-        const curConfig = getLabelConfig(item)
-        curConfig.label && (obj['/'+item.path] = curConfig)
+        const curPage = getLabelConfig(item)
+        curPage.label && (obj['/'+item.path] = curPage)
 	    return obj
 	},pagesJson.subpackages.reduce((obj,item)=>{
 		// 获取分包路由配置
 	    const root = item.root
 	    item.pages.forEach((item)=>{
-	    	const curConfig = getLabelConfig(item)
-	        curConfig.label && (obj['/'+root+'/'+item.path] = curConfig)
+	    	const curPage = getLabelConfig(item)
+	        curPage.label && (obj['/'+root+'/'+item.path] = curPage)
 	    })
 	    return obj
 	},{}))
@@ -44,14 +52,52 @@ const getConfig = ()=>{
 // 生成path对应的对象结构
 const getLabelConfig = (json)=>{
 	return {
-		label: (json.style && json.style.label) || vueLabel.label,
-		ele: (json.style && json.style.rootEle) || vueLabel.rootEle
+		label: (json.style && json.style.label) || insetLoader.label,
+		ele: (json.style && json.style.rootEle) || insetLoader.rootEle
 	}
 }
+
+// 反序列化page.json并缓存，
+// 并根据page.json分析是否有效并且需要后续逻辑处理
+const initPages = (that)=>{
+	let pagesPath = (loaderUtils.getOptions(that) || {}).pagesPath
+	if(!pagesPath){
+		// 默认读取pages.json
+		pagesPath = path.resolve(rootPath, 'pages.json')
+	}else{
+		// 如有传自定义pagesPath，则截取出所在目录作为rootPath，用于后续匹配路由
+		rootPath = path.resolve(pagesPath,'../')
+	}
+	pagesJson = JSON.parse(fs.readFileSync(pagesPath,'utf8'))
+	return initInsetLoader()
+}
+
+
+// 给非必填项设置缺省值，缺少主要对象返回false
+initInsetLoader = ()=>{
+	insetLoader = pagesJson.insetLoader || {}
+	// label：全局标签配置
+	// rootEle：根元素的类型,也支持正则,如匹配任意标签.*
+	insetLoader.label = insetLoader.label || []
+	insetLoader.rootEle = insetLoader.rootEle || "div"
+
+	// config对象为空视为无效配置
+	const effective = typeof insetLoader.config == 'object' && Object.keys(insetLoader.config).length
+	return effective
+}
+
+// 根据resourcePath获取路由
+const getRoute = (resourcePath) => resourcePath
+.replace(rootPath,'')
+.replace('.vue','')
+.replace(/\\/g,'/')
 
 module.exports = {
 	generateHtmlCode,
 	generateLabelCode,
 	generateStyleCode,
-	getConfig
+	initInsetLoader,
+	getPagesMap,
+	initPages,
+	getRoute
 }
