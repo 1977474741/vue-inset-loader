@@ -13,7 +13,7 @@ let rootPath =  process.env.UNI_INPUT_DIR || (process.env.INIT_CWD + '\\src')
 // 在template中用正则匹配并替换一段代码
 const generateHtmlCode = (template,labelCode,regLabel)=>{
 	// 去除html所有注释和首尾空白
-	const regNotes = /<!--(.|[\r\n])*?-->/g
+	const regNotes = /<!--((?!(#ifdef|#ifndef|#endif)).|[\r\n])*?-->/g
 	const regBlank = /^\s+|\s+$/g
 	return template
 	.replace(regNotes,'')
