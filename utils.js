@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const stripJsonComments = require("./node_modules/strip-json-comments")
+const stripJsonComments = require("../strip-json-comments")
 
 // 反序列化后的pages.json对象
 let pagesJson = {}
