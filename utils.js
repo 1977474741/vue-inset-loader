@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const loaderUtils = require("loader-utils")
+const stripJsonComments = require("./node_modules/strip-json-comments")
 
 // 反序列化后的pages.json对象
 let pagesJson = {}
@@ -34,11 +34,13 @@ const generateStyleCode = (styles)=>styles.reduce((str,item,i)=>{
 // 分析pages.json，生成路由和配置的映射对象
 const getPagesMap = ()=>{
 	// 获取主包路由配置
-	return pagesJson.pages.reduce((obj,item)=>{
+	const pages = pagesJson.pages || []
+	const subpackages = pagesJson.subpackages || []
+	return pages.reduce((obj,item)=>{
         const curPage = getLabelConfig(item)
         curPage.label && (obj['/'+item.path] = curPage)
 	    return obj
-	},pagesJson.subpackages.reduce((obj,item)=>{
+	},subpackages.reduce((obj,item)=>{
 		// 获取分包路由配置
 	    const root = item.root
 	    item.pages.forEach((item)=>{
@@ -60,7 +62,7 @@ const getLabelConfig = (json)=>{
 // 反序列化page.json并缓存，
 // 并根据page.json分析是否有效并且需要后续逻辑处理
 const initPages = (that)=>{
-	let pagesPath = (loaderUtils.getOptions(that) || {}).pagesPath
+	let pagesPath = (that.query || {}).pagesPath
 	if(!pagesPath){
 		// 默认读取pages.json
 		pagesPath = path.resolve(rootPath, 'pages.json')
@@ -68,7 +70,7 @@ const initPages = (that)=>{
 		// 如有传自定义pagesPath，则截取出所在目录作为rootPath，用于后续匹配路由
 		rootPath = path.resolve(pagesPath,'../')
 	}
-	pagesJson = JSON.parse(fs.readFileSync(pagesPath,'utf8'))
+	pagesJson = JSON.parse(stripJsonComments(fs.readFileSync(pagesPath,'utf8')))
 	return initInsetLoader()
 }
 
