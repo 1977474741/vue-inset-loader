@@ -1,4 +1,4 @@
-const { parseComponent } = require("vue-template-compiler")
+const { parseComponent } = require("../vue-template-compiler")
 const {
 	generateHtmlCode,
 	generateLabelCode,

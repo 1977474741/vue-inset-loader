@@ -1,6 +1,6 @@
 {
   "name": "vue-inset-loader",
-  "version": "1.2.0",
+  "version": "1.2.5",
   "description": "在sfc模板指定位置插入自定义内容",
   "main": "index.js",
   "repository": {
@@ -9,8 +9,8 @@
   },
   "author": "鹅鹅鹅 <1977474741@qq.com>",
   "license": "ISC",
-  "peerDependencies": {
+  "dependencies": {
     "vue-template-compiler": "^2.6.10",
-    "loader-utils": "^1.2.0"
+    "strip-json-comments": "^2.0.1"
   }
 }
