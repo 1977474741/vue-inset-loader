@@ -35,7 +35,7 @@ const generateStyleCode = (styles)=>styles.reduce((str,item,i)=>{
 const getPagesMap = ()=>{
 	// 获取主包路由配置
 	const pages = pagesJson.pages || []
-	const subpackages = pagesJson.subpackages || []
+	const subpackages = pagesJson.subpackages || pagesJson.subPackages || []
 	return pages.reduce((obj,item)=>{
         const curPage = getLabelConfig(item)
         curPage.label && (obj['/'+item.path] = curPage)
