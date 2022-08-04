@@ -16,14 +16,14 @@
                 loader: "vue-inset-loader"
                 // // 针对Hbuilder工具创建的uni-app项目
                 // loader: path.resolve(__dirname,"./node_modules/vue-inset-loader")
+                // // 支持自定义pages.json文件路径
+                // options: {
+                //     pagesPath: path.resolve(__dirname,'./src/pages.json')
+                // }
             }
           }
         ]
     },
-    // 支持自定义pages.json文件路径
-    // options: {
-    //     pagesPath: path.resolve(__dirname,'./src/pages.json')
-    // }
 
 ### 第三步 pages.json配置文件中添加insetLoader
 
